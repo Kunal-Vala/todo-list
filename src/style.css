@@ -1,0 +1,47 @@
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #1e1e2f;
+  color: white;
+  padding: 1rem;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar.minimized {
+  width: 60px;
+}
+
+.sidebar button {
+  display: block;
+  margin-bottom: 1rem;
+  background: none;
+  color: inherit;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+main#main-content {
+  flex-grow: 1;
+  background-color: #f9f9f9;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.project-card {
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f4f4f4;
+}
