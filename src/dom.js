@@ -110,13 +110,26 @@ function renderTaskList(project) {
   }
 
   project.tasks.forEach(task => {
+    const button = document.createElement("button");
+    button.classList.add('toggle-button');
+    button.textContent = 'Completed'
+    button.addEventListener('click', () => {
+      if(task.completed === true){
+        button.textContent = "Pending";
+        task.completed = !task.completed;
+      }else{
+        button.textContent = "Completed";
+        task.completed = !task.completed;
+      }
+      renderProjectDetail(project)
+    });
     const card = document.createElement('div');
-    card.classList.add('task-card');  
-    switch(task.priority){
+    card.classList.add('task-card');
+    switch (task.priority) {
       case 'low':
         card.classList.add('priority-low');
         break;
-      
+
       case 'medium':
         card.classList.add('priority-medium');
         break;
@@ -136,6 +149,8 @@ function renderTaskList(project) {
       <p>⚡ ${task.priority}</p>
       <p>Status: ${task.completed ? "✅ Completed" : "⏳ Pending"}</p>
     `;
+
+    card.appendChild(button);
     container.appendChild(card);
   });
 
@@ -178,7 +193,7 @@ function renderTaskForm(project) {
 
     const title = form.querySelector('#task-title').value.trim();
     const description = form.querySelector('#task-description').value.trim();
-    const dueDate = format(form.querySelector('#due-date').value ,   "EEE, dd MMM yyyy – hh:mm a");
+    const dueDate = format(form.querySelector('#due-date').value, "EEE, dd MMM yyyy – hh:mm a");
     const priority = form.querySelector('#task-priority').value;
 
     if (!title || !dueDate) {
