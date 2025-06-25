@@ -89,6 +89,7 @@ function renderProjectDetail(project) {
 
   const header = document.createElement('div');
   header.innerHTML = `<h2>${project.title}</h2><p>${project.description}</p>`;
+  header.classList.add("project-card-full");
 
   const taskList = renderTaskList(project);
   const taskForm = renderTaskForm(project);
@@ -110,7 +111,24 @@ function renderTaskList(project) {
 
   project.tasks.forEach(task => {
     const card = document.createElement('div');
-    card.classList.add('task-card');
+    card.classList.add('task-card');  
+    switch(task.priority){
+      case 'low':
+        card.classList.add('priority-low');
+        break;
+      
+      case 'medium':
+        card.classList.add('priority-medium');
+        break;
+
+      case 'high':
+        card.classList.add('priority-high');
+        break;
+
+      case 'urgent':
+        card.classList.add('priority-urgent');
+        break;
+    }
     card.innerHTML = `
       <h4>${task.title}</h4>
       <p>${task.description}</p>
@@ -160,7 +178,7 @@ function renderTaskForm(project) {
 
     const title = form.querySelector('#task-title').value.trim();
     const description = form.querySelector('#task-description').value.trim();
-    const dueDate = form.querySelector('#due-date').value;
+    const dueDate = format(form.querySelector('#due-date').value ,   "EEE, dd MMM yyyy – hh:mm a");
     const priority = form.querySelector('#task-priority').value;
 
     if (!title || !dueDate) {

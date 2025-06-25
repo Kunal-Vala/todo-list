@@ -45,3 +45,30 @@ main#main-content {
   border-radius: 8px;
   background-color: #f4f4f4;
 }
+
+.task-card,.project-card-full{
+  border: 5px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #eacedb85;
+  margin: 5px;
+}
+
+.priority-low{
+  border: 5px double #ccc;
+  background-color: #FEF001;
+}
+.priority-medium{
+  border: 5px double #ccc;
+  background-color: #FD9A01;
+}
+.priority-high{
+  border: 5px double #ccc;
+  background-color: #FD6104;
+  color: #f9f9f9;
+}
+.priority-urgent{
+  border: 5px double #ccc;
+  background-color: #F00505;
+  color: #f4f4f4;
+}
