@@ -1,7 +1,7 @@
 import { Project } from './project.js';
 import { projects } from './state.js';
 import { Task } from './task.js';
-import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute } from 'date-fns';
+import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute , parseISO , isThisWeek} from 'date-fns';
 import { saveProjects } from './storage.js';
 
 
@@ -408,3 +408,66 @@ function renderTaskForm(project) {
 export { renderProjectDetail };
 
 export { renderProjectForm, renderProjectList, initializeApp, renderTaskForm };
+
+
+
+
+// ...existing imports...
+
+// Helper to get all tasks across all projects
+function getAllTasks(projects) {
+  return projects.flatMap(project =>
+    project.tasks.map(task => ({ ...task, projectTitle: project.title }))
+  );
+}
+
+// Render filtered tasks in main content
+export function renderFilteredTasks(filterType) {
+  const main = document.getElementById('main-content');
+  main.innerHTML = `<h2>${filterType.charAt(0).toUpperCase() + filterType.slice(1)} Tasks</h2>`;
+
+  // You must have a global 'projects' array
+  const allTasks = getAllTasks(projects);
+
+  let filtered = [];
+  const today = startOfToday();
+
+  switch (filterType) {
+    case 'today':
+      filtered = allTasks.filter(task => isToday(parseISO(task.dueDate)));
+      break;
+    case 'week':
+      filtered = allTasks.filter(task => isThisWeek(parseISO(task.dueDate), { weekStartsOn: 1 }));
+      break;
+    case 'overdue':
+      filtered = allTasks.filter(task => !task.completed && isBefore(parseISO(task.dueDate), today));
+      break;
+    case 'completed':
+      filtered = allTasks.filter(task => task.completed);
+      break;
+    case 'pending':
+      filtered = allTasks.filter(task => !task.completed);
+      break;
+    default:
+      filtered = allTasks;
+  }
+
+  if (filtered.length === 0) {
+    main.innerHTML += `<p>No tasks found.</p>`;
+    return;
+  }
+
+  // Render each task (simple version)
+  filtered.forEach(task => {
+    const card = document.createElement('div');
+    card.className = `task-card priority-${task.priority}`;
+    card.innerHTML = `
+      <h4>${task.title} <small>(${task.projectTitle})</small></h4>
+      <p>${task.description}</p>
+      <p>Due: ${task.dueDate}</p>
+      <p>Priority: ${task.priority}</p>
+      <p>Status: ${task.completed ? "Completed" : "Pending"}</p>
+    `;
+    main.appendChild(card);
+  });
+}
