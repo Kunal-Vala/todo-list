@@ -2,6 +2,7 @@ import { Project } from './project.js';
 import { projects } from './state.js';
 import { Task } from './task.js';
 import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute } from 'date-fns';
+import { saveProjects } from './storage.js';
 
 
 function initializeApp() {
@@ -50,6 +51,9 @@ function handleFormSubmit(e) {
 
   const newProject = new Project(title, description);
   projects.push(newProject);
+
+  // Save updated projects to localStorage
+  saveProjects(projects);
   renderProjectList();
 }
 
@@ -116,6 +120,7 @@ function renderTaskList(project) {
 
     toggleButton.addEventListener('click', () => {
       task.completed = !task.completed;
+      saveProjects(projects);
       renderProjectDetail(project);
     });
 
@@ -126,6 +131,7 @@ function renderTaskList(project) {
     deleteButton.addEventListener('click', () => {
       const deleteTaskIndex = project.tasks.indexOf(task);
       project.tasks.splice(deleteTaskIndex, 1);
+      saveProjects(projects);
       renderProjectDetail(project)
     });
 
@@ -185,6 +191,7 @@ function renderTaskList(project) {
         const updates = { title, description, dueDate, priority, status };
 
         project.editTaskById(id, updates);
+        saveProjects(projects);
         renderProjectDetail(project);
       });
       const cancelButton = form.querySelector('.cancel-button');
@@ -279,7 +286,7 @@ function renderTaskForm(project) {
 
     const newTask = new Task(title, description, dueDate, priority);
     project.addTask(newTask);
-
+    saveProjects(projects);
     renderProjectDetail(project); // Re-render with updated tasks
   });
 
