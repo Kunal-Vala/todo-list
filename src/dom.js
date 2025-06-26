@@ -111,7 +111,17 @@ function renderProjectDetail(project, filteredTasks = null, sortValue = "all") {
   });
   header.appendChild(deleteBtn);
 
-  
+  const clearTasksBtn = document.createElement('button');
+  clearTasksBtn.textContent = "Clear All Tasks";
+  clearTasksBtn.classList.add("clear-tasks-btn");
+  clearTasksBtn.addEventListener('click', () => {
+    if (confirm("Are you sure you want to delete all tasks in this project?")) {
+      project.clearAllTasks();
+      saveProjects(projects);
+      renderProjectDetail(project);
+    }
+  });
+  header.appendChild(clearTasksBtn);
 
   const taskList = renderTaskList(project, filteredTasks || null);
   const taskForm = renderTaskForm(project);
@@ -197,7 +207,7 @@ function renderTaskList(project, filteredTasks = null) {
     container.textContent = "No tasks yet.";
     return container;
   }
-  
+
   tasksToShow.forEach(task => {
     const toggleButton = document.createElement("button");
     toggleButton.classList.add('toggle-button');
