@@ -112,17 +112,13 @@ function renderTaskList(project) {
   project.tasks.forEach(task => {
     const button = document.createElement("button");
     button.classList.add('toggle-button');
-    button.textContent = 'Completed'
+    button.textContent = task.completed ? "Mark as Pending" : "Mark as Completed";
+
     button.addEventListener('click', () => {
-      if(task.completed === true){
-        button.textContent = "Pending";
-        task.completed = !task.completed;
-      }else{
-        button.textContent = "Completed";
-        task.completed = !task.completed;
-      }
-      renderProjectDetail(project)
+      task.completed = !task.completed;
+      renderProjectDetail(project);
     });
+
     const card = document.createElement('div');
     card.classList.add('task-card');
     switch (task.priority) {
