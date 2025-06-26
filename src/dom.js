@@ -4,7 +4,6 @@ import { Task } from './task.js';
 import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute, parseISO, isThisWeek } from 'date-fns';
 import { saveProjects } from './storage.js';
 
-
 function initializeApp() {
   const main = document.querySelector("#main-content");
   main.innerHTML = "";
@@ -58,6 +57,7 @@ function handleFormSubmit(e) {
 
   // Save updated projects to localStorage
   saveProjects(projects);
+  showToast("Project added!");
   renderProjectList();
 }
 
@@ -141,6 +141,7 @@ function renderProjectDetail(project, filteredTasks = null, sortValue = "all") {
       if (idx !== -1) {
         projects.splice(idx, 1);
         saveProjects(projects);
+        showToast("Project deleted!");
         renderProjectList();
       }
     }
@@ -154,6 +155,7 @@ function renderProjectDetail(project, filteredTasks = null, sortValue = "all") {
     if (confirm("Are you sure you want to delete all tasks in this project?")) {
       project.clearAllTasks();
       saveProjects(projects);
+      showToast("All tasks cleared!");
       renderProjectDetail(project);
     }
   });
@@ -272,6 +274,7 @@ function renderTaskList(project, filteredTasks = null) {
     toggleButton.addEventListener('click', () => {
       task.completed = !task.completed;
       saveProjects(projects);
+      showToast(task.completed ? "Task marked as completed!" : "Task marked as pending!");
       renderProjectDetail(project);
     });
 
@@ -283,6 +286,7 @@ function renderTaskList(project, filteredTasks = null) {
       const deleteTaskIndex = project.tasks.indexOf(task);
       project.tasks.splice(deleteTaskIndex, 1);
       saveProjects(projects);
+      showToast("Task deleted!");
       renderProjectDetail(project)
     });
 
@@ -396,6 +400,7 @@ function showEditTaskModal(project, task) {
     task.dueDate = modal.querySelector('#edit-due-date').value;
     task.priority = modal.querySelector('#edit-priority').value;
     saveProjects(projects);
+    showToast("Task updated!");
     overlay.remove();
     renderProjectDetail(project);
   });
@@ -456,6 +461,7 @@ function renderTaskForm(project) {
     const newTask = new Task(title, description, dueDate, priority);
     project.addTask(newTask);
     saveProjects(projects);
+    showToast("Task added!");
     renderProjectDetail(project); // Re-render with updated tasks
   });
 
@@ -466,10 +472,6 @@ export { renderProjectDetail };
 
 export { renderProjectForm, renderProjectList, initializeApp, renderTaskForm };
 
-
-
-
-// ...existing imports...
 
 // Helper to get all tasks across all projects
 function getAllTasks(projects) {
@@ -549,4 +551,3 @@ function showToast(message) {
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 1800);
 }
-// Call showToast("Task updated!") after actions.
