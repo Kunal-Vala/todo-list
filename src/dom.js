@@ -499,7 +499,7 @@ export function renderFilteredTasks(filterType) {
       filtered = allTasks.filter(task => isThisWeek(parseISO(task.dueDate), { weekStartsOn: 1 }));
       break;
     case 'overdue':
-      filtered = allTasks.filter(task => !task.completed && isBefore(parseISO(task.dueDate), today));
+      filtered = allTasks.filter(task => !task.completed && isBefore(parseISO(task.dueDate), new Date()));
       break;
     case 'completed':
       filtered = allTasks.filter(task => task.completed);
@@ -520,18 +520,27 @@ export function renderFilteredTasks(filterType) {
   filtered.forEach(task => {
     const card = document.createElement('div');
     card.className = `task-card priority-${task.priority}`;
+    if (task.completed) card.classList.add('completed');
+
     let formattedDate = "Invalid Date";
-    const dateObj = parseISO(task.dueDate);
+    const dateObj = new Date(task.dueDate);
     if (!isNaN(dateObj)) {
       formattedDate = format(dateObj, "EEE, dd MMM yyyy – hh:mm a");
     }
+
     card.innerHTML = `
-    <h4>${task.title} <small>(${task.projectTitle})</small></h4>
-    <p>${task.description}</p>
-    <p>📅 ${formattedDate}</p>
-    <p>⚡ ${task.priority}</p>
-    <p>Status: ${task.completed ? "✅ Completed" : "⏳ Pending"}</p>
-  `;
+  <h4>
+    ${task.completed ? '<span class="checkmark">✔</span>' : ''}
+    ${task.title}
+    <small>(${task.projectTitle || ''})</small>
+  </h4>
+  <p>${task.description}</p>
+  <p>📅 ${formattedDate}</p>
+  <span class="priority-badge priority-${task.priority}">${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
+  <span class="status-badge ${task.completed ? 'status-completed' : 'status-pending'}">
+    ${task.completed ? 'Completed' : 'Pending'}
+  </span>
+`;
     main.appendChild(card);
   });
 }
