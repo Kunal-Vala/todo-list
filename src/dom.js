@@ -123,7 +123,26 @@ function renderProjectDetail(project, filteredTasks = null, sortValue = "all") {
   });
   header.appendChild(clearTasksBtn);
 
-  const taskList = renderTaskList(project, filteredTasks || null);
+  let taskList = renderTaskList(project, filteredTasks || null);
+  const searchWrapper = document.createElement('div');
+  searchWrapper.classList.add('search-wrapper');
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Search tasks by title...';
+  searchInput.classList.add('task-search-input');
+  searchWrapper.appendChild(searchInput);
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const baseTasks = filteredTasks || project.tasks; // Use a different variable name
+    const searchedTasks = baseTasks.filter(task =>
+      task.title.toLowerCase().includes(query)
+    );
+    // Re-render only the task list
+    const newTaskList = renderTaskList(project, searchedTasks);
+    taskList.replaceWith(newTaskList);
+    taskList = newTaskList;
+  });
   const taskForm = renderTaskForm(project);
 
   const sortLabel = document.createElement('label');
@@ -163,6 +182,7 @@ function renderProjectDetail(project, filteredTasks = null, sortValue = "all") {
 
   main.appendChild(header);
   main.appendChild(sortWrapper);
+  main.appendChild(searchWrapper)
   main.appendChild(taskList);
   main.appendChild(taskForm);
 }

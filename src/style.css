@@ -72,3 +72,21 @@ main#main-content {
   background-color: #F00505;
   color: #f4f4f4;
 }
+
+.clear-tasks-btn {
+  background: #ff9800;
+  color: #fff;
+  border: none;
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.search-wrapper {
+  margin: 1rem 0;
+}
+.task-search-input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
