@@ -1,7 +1,7 @@
 import { Project } from './project.js';
 import { projects } from './state.js';
 import { Task } from './task.js';
-import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute , parseISO , isThisWeek} from 'date-fns';
+import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute, parseISO, isThisWeek } from 'date-fns';
 import { saveProjects } from './storage.js';
 
 
@@ -49,6 +49,10 @@ function handleFormSubmit(e) {
     return;
   }
 
+  if (projects.some(p => p.title === title)) {
+    alert("A project with this title already exists.");
+    return;
+  }
   const newProject = new Project(title, description);
   projects.push(newProject);
 
@@ -61,28 +65,60 @@ function renderProjectList() {
   const main = document.querySelector("#main-content");
   main.innerHTML = "";
 
+  // Add a heading
+  const heading = document.createElement("h2");
+  heading.textContent = "Your Projects";
+  heading.style.marginBottom = "1.5rem";
+  main.appendChild(heading);
+
+  // Add "Create Project" button at the top
+  const addButton = document.createElement("button");
+  addButton.textContent = "+ New Project";
+  addButton.className = "edit-button";
+  addButton.style.marginBottom = "1.5rem";
+  addButton.addEventListener("click", renderProjectForm);
+  main.appendChild(addButton);
+
   if (projects.length === 0) {
-    main.textContent = "No projects yet.";
+    // Show a friendly empty state
+    const empty = document.createElement("div");
+    empty.style.textAlign = "center";
+    empty.style.marginTop = "2rem";
+    empty.innerHTML = `
+      <p style="font-size:1.2rem; color:#888;">No projects yet.</p>
+      <button class="edit-button" style="margin-top:1rem;" onclick="(${renderProjectForm.toString()})()">Create your first project</button>
+    `;
+    main.appendChild(empty);
     return;
   }
 
   const grid = document.createElement("div");
   grid.classList.add("project-grid");
+  grid.style.background = "#f6f6fa";
+  grid.style.padding = "1.5rem";
+  grid.style.borderRadius = "12px";
 
   projects.forEach((project) => {
     const card = document.createElement("div");
     card.classList.add("project-card");
-    card.innerHTML = `<h3>${project.title}</h3><p>${project.description}</p>`;
-    grid.appendChild(card);
-
+    card.style.minHeight = "120px";
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.justifyContent = "center";
+    card.style.alignItems = "flex-start";
+    card.style.boxShadow = "0 2px 8px #0001";
+    card.innerHTML = `
+      <div style="font-size:2rem; margin-bottom:0.5rem;">📁</div>
+      <h3 style="margin:0 0 0.5rem 0; font-size:1.3rem;">${project.title}</h3>
+      <p style="margin:0; color:#666;">${project.description || "<em>No description</em>"}</p>
+    `;
     card.addEventListener("click", () => {
       renderProjectDetail(project);
     });
-
+    grid.appendChild(card);
   });
 
   main.appendChild(grid);
-
 }
 
 
@@ -255,60 +291,7 @@ function renderTaskList(project, filteredTasks = null) {
     editButton.textContent = 'Edit Task';
 
     editButton.addEventListener('click', () => {
-      card.innerHTML = "";
-      const form = document.createElement("form");
-      const now = format((startOfMinute(new Date())), "yyyy-MM-dd'T'HH:mm");
-
-      form.innerHTML = `
-      <h3>Edit Task</h3>
-      <label for="task-title">Title</label>
-      <input type="text" id="task-title" name="task-title" value="${task.title}">
-
-      <label for="task-description">Description</label>
-      <textarea id="task-description" name="task-description" rows="3">${task.description}</textarea>
-
-      <label for="task-due-date">Due Date & Time</label>
-      <input type="datetime-local" id="due-date" name="due-date"  value="${now}">
-
-      <label for="task-priority">Priority</label>
-      <select id="task-priority" name="task-priority">
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-        <option value="urgent">Urgent</option>
-        selected
-      </select>
-
-      <button type="submit">Save</button>
-      <button type="cancel" class="cancel-button">Cancel</button>
-      `;
-      card.appendChild(form);
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = task.id;
-        const title = form.querySelector('#task-title').value.trim();
-        const description = form.querySelector('#task-description').value.trim();
-        const rawValue = form.querySelector('#due-date').value;
-        const priority = form.querySelector('#task-priority').value;
-        const status = task.completed;
-
-        if (!title || !rawValue) {
-          alert("Title and Due Date are required.");
-          return;
-        }
-
-        const updates = { title, description, dueDate: rawValue, priority, status };
-
-        project.editTaskById(id, updates);
-        saveProjects(projects);
-        renderProjectDetail(project);
-      });
-      const cancelButton = form.querySelector('.cancel-button');
-      cancelButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        renderProjectDetail(project);
-      });
+      showEditTaskModal(project, task);
     });
 
     const card = document.createElement('div');
@@ -352,6 +335,80 @@ function renderTaskList(project, filteredTasks = null) {
   });
 
   return container;
+}
+
+function showEditTaskModal(project, task) {
+  // Remove any existing modal
+  const oldModal = document.querySelector('.edit-modal-overlay');
+  if (oldModal) oldModal.remove();
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-modal-overlay';
+
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'edit-modal';
+
+  // Format date for input
+  let dateValue = "";
+  if (task.dueDate) {
+    const d = new Date(task.dueDate);
+    if (!isNaN(d)) {
+      dateValue = d.toISOString().slice(0, 16);
+    }
+  }
+
+  modal.innerHTML = `
+    <h3>Edit Task</h3>
+    <form id="edit-task-form">
+      <label for="edit-title">Title</label>
+      <input type="text" id="edit-title" name="title" value="${task.title}" required>
+
+      <label for="edit-description">Description</label>
+      <textarea id="edit-description" name="description" rows="3">${task.description || ""}</textarea>
+
+      <label for="edit-due-date">Due Date & Time</label>
+      <input type="datetime-local" id="edit-due-date" name="dueDate" value="${dateValue}" required>
+
+      <label for="edit-priority">Priority</label>
+      <select id="edit-priority" name="priority">
+        <option value="low" ${task.priority === "low" ? "selected" : ""}>Low</option>
+        <option value="medium" ${task.priority === "medium" ? "selected" : ""}>Medium</option>
+        <option value="high" ${task.priority === "high" ? "selected" : ""}>High</option>
+        <option value="urgent" ${task.priority === "urgent" ? "selected" : ""}>Urgent</option>
+      </select>
+      <div style="margin-top:1.2rem;">
+        <button type="submit" class="edit-button">Save</button>
+        <button type="button" class="cancel-button">Cancel</button>
+      </div>
+    </form>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Handle form submit
+  modal.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    task.title = modal.querySelector('#edit-title').value.trim();
+    task.description = modal.querySelector('#edit-description').value.trim();
+    task.dueDate = modal.querySelector('#edit-due-date').value;
+    task.priority = modal.querySelector('#edit-priority').value;
+    saveProjects(projects);
+    overlay.remove();
+    renderProjectDetail(project);
+  });
+
+  // Handle cancel
+  modal.querySelector('.cancel-button').addEventListener('click', () => {
+    overlay.remove();
+  });
+
+  // Close modal on overlay click (optional)
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
 }
 
 // Renders the task form and handles submission
@@ -461,13 +518,35 @@ export function renderFilteredTasks(filterType) {
   filtered.forEach(task => {
     const card = document.createElement('div');
     card.className = `task-card priority-${task.priority}`;
+    let formattedDate = "Invalid Date";
+    const dateObj = parseISO(task.dueDate);
+    if (!isNaN(dateObj)) {
+      formattedDate = format(dateObj, "EEE, dd MMM yyyy – hh:mm a");
+    }
     card.innerHTML = `
-      <h4>${task.title} <small>(${task.projectTitle})</small></h4>
-      <p>${task.description}</p>
-      <p>Due: ${task.dueDate}</p>
-      <p>Priority: ${task.priority}</p>
-      <p>Status: ${task.completed ? "Completed" : "Pending"}</p>
-    `;
+    <h4>${task.title} <small>(${task.projectTitle})</small></h4>
+    <p>${task.description}</p>
+    <p>📅 ${formattedDate}</p>
+    <p>⚡ ${task.priority}</p>
+    <p>Status: ${task.completed ? "✅ Completed" : "⏳ Pending"}</p>
+  `;
     main.appendChild(card);
   });
 }
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.position = 'fixed';
+  toast.style.bottom = '2rem';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  toast.style.background = '#39396b';
+  toast.style.color = '#fff';
+  toast.style.padding = '0.7rem 1.5rem';
+  toast.style.borderRadius = '6px';
+  toast.style.zIndex = 2000;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1800);
+}
+// Call showToast("Task updated!") after actions.

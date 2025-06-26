@@ -1,3 +1,4 @@
+/* Layout */
 .layout {
   display: flex;
   height: 100vh;
@@ -10,6 +11,7 @@
   padding: 1rem;
   transition: width 0.3s ease;
   overflow: hidden;
+  min-width: 60px;
 }
 
 .sidebar.minimized {
@@ -18,14 +20,39 @@
 
 .sidebar button {
   display: block;
+  width: 100%;
   margin-bottom: 1rem;
-  background: none;
-  color: inherit;
+  background: #282846;
+  color: #fff;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  padding: 0.7rem 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
 }
 
+.sidebar button:hover,
+.sidebar button:focus {
+  background: #39396b;
+}
+
+#toggle-sidebar {
+  background: none;
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  border: none;
+  cursor: pointer;
+  width: auto;
+}
+
+#project-list {
+  margin-bottom: 2rem;
+}
+
+/* Main content */
 main#main-content {
   flex-grow: 1;
   background-color: #f9f9f9;
@@ -33,60 +60,274 @@ main#main-content {
   overflow-y: auto;
 }
 
+/* Project grid and cards */
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
 }
 
 .project-card {
-  border: 1px solid #ccc;
-  padding: 12px;
+  border: 1.5px solid #ccc;
+  padding: 16px;
   border-radius: 8px;
   background-color: #f4f4f4;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
 }
 
-.task-card,.project-card-full{
-  border: 5px solid #ccc;
-  padding: 12px;
+.project-card:hover {
+  box-shadow: 0 2px 12px #0001;
+  background: #f0e9f7;
+}
+
+.project-card-full {
+  border: 3px solid #eacedb;
+  background: #f7e9f3;
   border-radius: 8px;
-  background-color: #eacedb85;
-  margin: 5px;
+  padding: 18px 18px 10px 18px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
 }
 
-.priority-low{
-  border: 5px double #ccc;
+/* Task cards */
+.task-list {
+  margin-bottom: 2rem;
+}
+
+.task-card {
+  border: 3px solid #ccc;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 1.2rem;
+  background: #fff;
+  transition: box-shadow 0.2s;
+  position: relative;
+}
+
+.task-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.task-card small {
+  color: #888;
+}
+
+.task-card p {
+  margin: 0.2rem 0;
+  font-size: 1rem;
+}
+
+.priority-low {
+  border: 3px double #ccc;
   background-color: #FEF001;
 }
-.priority-medium{
-  border: 5px double #ccc;
+.priority-medium {
+  border: 3px double #ccc;
   background-color: #FD9A01;
 }
-.priority-high{
-  border: 5px double #ccc;
+.priority-high {
+  border: 3px double #ccc;
   background-color: #FD6104;
   color: #f9f9f9;
 }
-.priority-urgent{
-  border: 5px double #ccc;
+.priority-urgent {
+  border: 3px double #ccc;
   background-color: #F00505;
   color: #f4f4f4;
+}
+
+/* Buttons */
+button,
+input[type="submit"] {
+  font-family: inherit;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 1rem;
+  margin: 0.2rem 0.2rem 0.2rem 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:active {
+  opacity: 0.8;
+}
+
+.delete-project-btn {
+  background: #f44336;
+  color: #fff;
+  margin-left: 0.5rem;
 }
 
 .clear-tasks-btn {
   background: #ff9800;
   color: #fff;
-  border: none;
-  margin-left: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
+  margin-left: 0.5rem;
 }
+
+.edit-button {
+  background: #2196f3;
+  color: #fff;
+}
+
+.delete-button {
+  background: #e53935;
+  color: #fff;
+}
+
+.toggle-button {
+  background: #43a047;
+  color: #fff;
+}
+
+.cancel-button {
+  background: #888;
+  color: #fff;
+}
+
+/* Task form */
+#task-form, #project-form {
+  background: #fff;
+  border: 1.5px solid #eacedb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+#task-form label, #project-form label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.2rem;
+  font-weight: 500;
+}
+
+#task-form input, #task-form textarea,
+#project-form input, #project-form textarea,
+#task-form select, #project-form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+#task-form button, #project-form button {
+  margin-top: 1rem;
+}
+
+/* Sort/filter and search */
+.sort-wrapper {
+  margin: 1rem 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#sort-label {
+  font-weight: 600;
+}
+
+#sort-tasks {
+  padding: 0.3rem 0.7rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
 .search-wrapper {
   margin: 1rem 0;
 }
+
 .task-search-input {
   width: 100%;
   padding: 0.5rem;
   font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Filtered tasks view */
+main#main-content > h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #39396b;
+}
+
+main#main-content .task-card {
+  margin-bottom: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100vw;
+    min-width: 0;
+  }
+  main#main-content {
+    padding: 1rem;
+  }
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.edit-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30,30,47,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-modal {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px #0003;
+  padding: 2rem 2.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 2px solid #eacedb;
+}
+.edit-modal h3 {
+  margin-top: 0;
+}
+.edit-modal .cancel-button {
+  margin-left: 1rem;
+}
+
+.project-grid {
+  background: #f6f6fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.project-card {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px #0001;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.project-card:hover {
+  background: #e9e6f7;
+  box-shadow: 0 4px 16px #0002;
 }
