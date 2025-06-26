@@ -129,6 +129,71 @@ function renderTaskList(project) {
       renderProjectDetail(project)
     });
 
+    const editButton = document.createElement('button');
+    editButton.classList.add('edit-button');
+    editButton.textContent = 'Edit Task';
+
+    editButton.addEventListener('click', () => {
+      card.innerHTML = "";
+      const form = document.createElement("form");
+      const now = format((startOfMinute(new Date())), "yyyy-MM-dd'T'HH:mm");
+
+      form.innerHTML = `
+      <h3>Edit Task</h3>
+      <label for="task-title">Title</label>
+      <input type="text" id="task-title" name="task-title" value="${task.title}">
+
+      <label for="task-description">Description</label>
+      <textarea id="task-description" name="task-description" rows="3">${task.description}</textarea>
+
+      <label for="task-due-date">Due Date & Time</label>
+      <input type="datetime-local" id="due-date" name="due-date"  value="${now}">
+
+
+
+      <label for="task-priority">Priority</label>
+      <select id="task-priority" name="task-priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="urgent">Urgent</option>
+        selected
+      </select>
+
+      <button type="submit">Save</button>
+      <button type="cancel" class="cancel-button">Cancel</button>
+
+      `;
+      card.appendChild(form);
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = task.id;
+        const title = form.querySelector('#task-title').value.trim();
+        const description = form.querySelector('#task-description').value.trim();
+        const rawValue = form.querySelector('#due-date').value;
+        const parsedDueDate = new Date(rawValue);
+        const dueDate = format(parsedDueDate, "EEE, dd MMM yyyy – hh:mm a");
+        const priority = form.querySelector('#task-priority').value;
+        const status = task.completed;
+
+        if (!title || !dueDate) {
+          alert("Title and Due Date are required.");
+          return;
+        }
+
+        const updates = { title, description, dueDate, priority, status };
+
+        project.editTaskById(id, updates);
+        renderProjectDetail(project);
+      });
+      const cancelButton = form.querySelector('.cancel-button');
+      cancelButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        renderProjectDetail(project);
+      });
+    });
+
     const card = document.createElement('div');
     card.classList.add('task-card');
     switch (task.priority) {
@@ -157,6 +222,7 @@ function renderTaskList(project) {
     `;
 
 
+    card.appendChild(editButton);
     card.appendChild(deleteButton);
     card.appendChild(toggleButton);
     container.appendChild(card);
