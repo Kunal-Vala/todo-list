@@ -95,6 +95,24 @@ function renderProjectDetail(project, filteredTasks = null, sortValue = "all") {
   header.innerHTML = `<h2>${project.title}</h2><p>${project.description}</p>`;
   header.classList.add("project-card-full");
 
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = "Delete Project";
+  deleteBtn.classList.add("delete-project-btn");
+  deleteBtn.addEventListener('click', () => {
+    if (confirm("Are you sure you want to delete this project?")) {
+      // Remove project from projects array
+      const idx = projects.indexOf(project);
+      if (idx !== -1) {
+        projects.splice(idx, 1);
+        saveProjects(projects);
+        renderProjectList();
+      }
+    }
+  });
+  header.appendChild(deleteBtn);
+
+  
+
   const taskList = renderTaskList(project, filteredTasks || null);
   const taskForm = renderTaskForm(project);
 
