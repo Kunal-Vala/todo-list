@@ -1,7 +1,7 @@
 import { Project } from './project.js';
 import { projects } from './state.js';
 import { Task } from './task.js';
-import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday } from 'date-fns';
+import { isToday, isBefore, isWithinInterval, addDays, format, startOfToday, startOfMinute } from 'date-fns';
 
 
 function initializeApp() {
@@ -110,13 +110,23 @@ function renderTaskList(project) {
   }
 
   project.tasks.forEach(task => {
-    const button = document.createElement("button");
-    button.classList.add('toggle-button');
-    button.textContent = task.completed ? "Mark as Pending" : "Mark as Completed";
+    const toggleButton = document.createElement("button");
+    toggleButton.classList.add('toggle-button');
+    toggleButton.textContent = task.completed ? "Mark as Pending" : "Mark as Completed";
 
-    button.addEventListener('click', () => {
+    toggleButton.addEventListener('click', () => {
       task.completed = !task.completed;
       renderProjectDetail(project);
+    });
+
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('delete-button');
+    deleteButton.textContent = 'Delete Task';
+
+    deleteButton.addEventListener('click', () => {
+      const deleteTaskIndex = project.tasks.indexOf(task);
+      project.tasks.splice(deleteTaskIndex, 1);
+      renderProjectDetail(project)
     });
 
     const card = document.createElement('div');
@@ -146,7 +156,9 @@ function renderTaskList(project) {
       <p>Status: ${task.completed ? "✅ Completed" : "⏳ Pending"}</p>
     `;
 
-    card.appendChild(button);
+
+    card.appendChild(deleteButton);
+    card.appendChild(toggleButton);
     container.appendChild(card);
   });
 
@@ -159,7 +171,7 @@ function renderTaskForm(project) {
   form.id = "task-form";
 
   const today = format(startOfToday(), "yyyy-MM-dd'T'HH:mm");
-
+  const now = format((startOfMinute(new Date())), "yyyy-MM-dd'T'HH:mm");
   form.innerHTML = `
     <h3>Add Task</h3>
     <label for="task-title">Title</label>
@@ -169,7 +181,7 @@ function renderTaskForm(project) {
     <textarea id="task-description" name="task-description" rows="3"></textarea>
 
     <label for="task-due-date">Due Date & Time</label>
-    <input type="datetime-local" id="due-date" name="due-date"  min="${today}">
+    <input type="datetime-local" id="due-date" name="due-date"  min="${today}" value = "${now}" >
 
 
 
@@ -189,7 +201,9 @@ function renderTaskForm(project) {
 
     const title = form.querySelector('#task-title').value.trim();
     const description = form.querySelector('#task-description').value.trim();
-    const dueDate = format(form.querySelector('#due-date').value, "EEE, dd MMM yyyy – hh:mm a");
+    const rawValue = form.querySelector('#due-date').value;
+    const parsedDueDate = new Date(rawValue);
+    const dueDate = format(parsedDueDate, "EEE, dd MMM yyyy – hh:mm a");
     const priority = form.querySelector('#task-priority').value;
 
     if (!title || !dueDate) {
