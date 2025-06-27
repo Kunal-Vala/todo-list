@@ -85,10 +85,11 @@ function renderProjectList() {
     empty.style.textAlign = "center";
     empty.style.marginTop = "2rem";
     empty.innerHTML = `
-      <p style="font-size:1.2rem; color:#888;">No projects yet.</p>
-      <button class="edit-button" style="margin-top:1rem;" onclick="(${renderProjectForm.toString()})()">Create your first project</button>
-    `;
+    <p style="font-size:1.2rem; color:#888;">No projects yet.</p>
+    <button class="edit-button" id="first-project-btn" style="margin-top:1rem;">Create your first project</button>
+  `;
     main.appendChild(empty);
+    document.getElementById("first-project-btn").addEventListener("click", renderProjectForm);
     return;
   }
 
